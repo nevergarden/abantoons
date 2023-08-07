@@ -10,6 +10,17 @@
 </head>
 <body>
     <canvas id="webgl"></canvas>
+    <script>
+        var game = document.getElementById("webgl");
+        window.onresize = function() {
+            const width  = window.innerWidth || document.documentElement.clientWidth || 
+            document.body.clientWidth;
+            const height = window.innerHeight|| document.documentElement.clientHeight|| 
+            document.body.clientHeight;
+            game.style.width = width;
+            game.style.height = height;
+        }
+    </script>
     <script type="text/javascript" src="game.js"></script>
 </body>
 </html>

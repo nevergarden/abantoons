@@ -4,3 +4,4 @@
 --js bin/web/game.js
 --define no-deprecation-warnings
 --debug
+# --dce full
