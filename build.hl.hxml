@@ -1,5 +1,4 @@
 --library heaps
---library castle
 --library hlsdl
 --class-path src
 --hl bin/game.hl

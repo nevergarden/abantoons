@@ -1,5 +1,6 @@
 package abantoons.scene;
 
+import abantoons.view.CharacterView;
 import abantoons.control.BootLogo;
 import h2d.RenderContext;
 
@@ -24,7 +25,9 @@ class Desktop extends h2d.Scene {
 	}
 
 	private function loadDesktop() {
-
+		var ch = new CharacterView(hxd.Res.character.yum.yum_png, hxd.Res.character.yum.yum_json, this);
+		ch.x = 800/2;
+		ch.y = 600/2;
 	}
 
 	override function sync(ctx:RenderContext) {
