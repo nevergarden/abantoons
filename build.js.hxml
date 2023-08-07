@@ -1,0 +1,11 @@
+--library heaps
+--class-path src
+--main Main
+--js bin/web/game.js
+--connect 6000
+--debug
+
+--next
+--connect 6000
+--main Dist
+--interp

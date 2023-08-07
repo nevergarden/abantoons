@@ -9,4 +9,4 @@
 *.hl
 *.pak
 *.js
-*.js.*
+*.js.map
