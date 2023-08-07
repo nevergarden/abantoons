@@ -1,5 +1,6 @@
 package abantoons.control;
 
+import abantoons.res.ProFontNayuki;
 import h2d.RenderContext;
 
 class BootLogo extends h2d.Object {
@@ -21,7 +22,7 @@ class BootLogo extends h2d.Object {
 		logoTile.dx = (logoTile.width / -2);
 		logoTile.dy = (logoTile.height / -2);
 		this.logo = new h2d.Bitmap(logoTile, this);
-		this.text = new h2d.Text(hxd.res.DefaultFont.get(), this);
+		this.text = new h2d.Text(ProFontNayuki.get("white"), this);
 		this.text.text = baseText;
 		this.text.syncPos();
 		this.text.x = -this.text.textWidth/2;
