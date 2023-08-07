@@ -2,4 +2,5 @@
 --class-path src
 --main Main
 --js bin/web/game.js
+--define no-deprecation-warnings
 --debug

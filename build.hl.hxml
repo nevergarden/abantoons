@@ -4,6 +4,7 @@
 --class-path src
 --hl bin/game.hl
 --main Main
+--define no-deprecation-warnings
 
 --define windowTitle="Abantoons"
 --define windowSize=800x600
