@@ -27,7 +27,7 @@ jobs:
         uses: krdlab/setup-haxe@v1
         with:
           haxe-version: 4.3.1
-          cache-dependency-path: 'lib.hxml'
+          cache-dependency-path: 'build.js.hxml'
       - run: haxelib install heaps
       - run: haxe build.js.hxml
       - name: Setup Pages
@@ -35,7 +35,6 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          # Upload entire repository
           path: 'bin/web'
       - name: Deploy to GitHub Pages
         id: deployment
