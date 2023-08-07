@@ -29,9 +29,8 @@ jobs:
           haxe-version: 4.3.1
           cache-dependency-path: 'build.js.hxml'
       - run: haxelib install heaps
-      - run: |
-        haxe build.js.hxml
-        haxe dist.js.hxml
+      - run: haxe build.js.hxml
+      - run: haxe dist.js.hxml
       - name: Setup Pages
         uses: actions/configure-pages@v3
       - name: Upload artifact
