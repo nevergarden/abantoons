@@ -1,0 +1,12 @@
+#: ignore the gravity
+/node_modules
+
+#: ignore editor
+/.vscode
+
+#: ignore outputs
+/bin
+*.hl
+*.pak
+*.js
+*.js.*

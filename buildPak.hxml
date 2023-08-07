@@ -1,0 +1,5 @@
+--library heaps
+--hl packer.hl
+--main hxd.fmt.pak.Build
+--cmd hl packer.hl
+--connect 6000

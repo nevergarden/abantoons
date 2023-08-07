@@ -1,0 +1,10 @@
+--library heaps
+--library castle
+--library hlsdl
+--class-path src
+--hl bin/game.hl
+--main Main
+
+--define windowTitle="Abantoons"
+--define windowSize=800x600
+--connect 6000
