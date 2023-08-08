@@ -50,6 +50,8 @@ class Desktop extends h2d.Scene {
 	var cursorTile:h2d.Tile;
 	var cursorMoveTile:h2d.Tile;
 
+	var platform : PlatformView;
+
 
 	private function loadDesktop() {
 		cursorTile = hxd.Res.ui.under_cursor.toTile();
@@ -67,29 +69,17 @@ class Desktop extends h2d.Scene {
 		camera.anchorX = 0.5;
 		camera.anchorY = 0.5;
 
-		var platform = new PlatformView(this.background);
-		var d = new Dirt(Dirt1);
-		d.addSnapped(0, 0);
-		d.addSnapped(1, 0);
-		d.addSnapped(2, 0);
-		d.addSnapped(3, 0);
-		var d2 = new Dirt(Dirt2);
-		d2.addSnapped(0, 1);
-		d2.addSnapped(1, 1);
-		d2.addSnapped(2, 1);
-		d2.addSnapped(3, 1);
-		var d3 = new Dirt(Dirt3);
-		d3.addSnapped(0, 2);
-		d3.addSnapped(1, 2);
-		d3.addSnapped(2, 2);
-		d3.addSnapped(3, 2);
-
-		platform.addTileGroup(d);
-		platform.addTileGroup(d2);
-		platform.addTileGroup(d3);
-
-		platform.x = 2 * 100;
-		platform.y = 3 * 100;
+		platform = new PlatformView(this.background);
+		platform.addTileToGroup(0,0, Dirt1);
+		platform.addTileToGroup(1,0, Dirt1);
+		platform.addTileToGroup(2,0, Dirt1);
+		platform.addTileToGroup(3,0, Dirt1);
+		platform.addTileToGroup(0,1, Dirt2);
+		platform.addTileToGroup(1,1, Dirt2);
+		platform.addTileToGroup(2,1, Dirt2);
+		platform.addTileToGroup(3,1, Dirt2);
+		platform.removeTileFromGroup(3,1);
+		platform.render();
 	}
 
 	var isPushing:Bool = false;
@@ -125,6 +115,7 @@ class Desktop extends h2d.Scene {
 					}
 				}
 			case Release:
+				platform.selectPlatforms(selectedBounds);
 				isPushing = false;
 				this.cursorBmp.visible = true;
 		}
