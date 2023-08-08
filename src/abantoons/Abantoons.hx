@@ -36,6 +36,10 @@ class Abantoons extends hxd.App {
 				abantoons.core.Mouse.push();
 			case ERelease:
 				abantoons.core.Mouse.release();
+			case EKeyDown:
+				abantoons.core.Keyboard.down(e.keyCode);
+			case EKeyUp:
+				abantoons.core.Keyboard.up(e.keyCode);
 			default:
 		}
 	}
