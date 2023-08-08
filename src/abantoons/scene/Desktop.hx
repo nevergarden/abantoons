@@ -16,6 +16,9 @@ class Desktop extends h2d.Scene {
 	var cursorBmp : h2d.Bitmap;
 	var drawGraphic : h2d.Graphics;
 
+	private var selectBloopSound:hxd.res.Sound;
+	private var soundChannel:hxd.snd.Channel;
+
 	public function new() {
 		super();
 		this.change_resolution();
@@ -31,6 +34,7 @@ class Desktop extends h2d.Scene {
 		var logo = new BootLogo(3, this);
 		logo.x = 800 / 2;
 		logo.y = 600 / 2 - 50;
+		selectBloopSound = hxd.Res.sfx.bloop_noise;
 		logo.onDone = function() {
 			this.removeChild(logo);
 			loadDesktop();
@@ -42,7 +46,7 @@ class Desktop extends h2d.Scene {
 		this.cursorBmp = new h2d.Bitmap(cursorTile, this.overlay);
 		this.drawGraphic = new h2d.Graphics(this.overlay);
 
-		Mouse.addEventListener(registerSnappedMouseUI);
+		Mouse.addEventListener(mouseUIHandler);
 		var ch = new CharacterView(hxd.Res.character.yum.yum_png, hxd.Res.character.yum.yum_json, this);
 		ch.x = 800/2;
 		ch.y = 600/2;
@@ -78,7 +82,7 @@ class Desktop extends h2d.Scene {
 	var wX : Int = 1;
 	var wY : Int = 1;
 
-	function registerSnappedMouseUI(e:MouseEventType) : Void {
+	function mouseUIHandler(e:MouseEventType) : Void {
 		switch (e) {
 			case Push:
 				this.isPushing = true;
@@ -129,6 +133,7 @@ class Desktop extends h2d.Scene {
 		}
 		this.drawGraphic.drawRect(x,y,w,h);
 		this.drawGraphic.endFill();
+		this.soundChannel = this.selectBloopSound.play(false, (Math.abs(wc*hc)+2)/3);
 	}
 
 	override function sync(ctx:RenderContext) {
