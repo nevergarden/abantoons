@@ -1,5 +1,7 @@
 package abantoons.scene;
 
+import abantoons.type.Rectangle;
+import h2d.col.Bounds;
 import h2d.Layers;
 import h2d.RenderContext;
 import hxd.Key;
@@ -45,8 +47,13 @@ class Desktop extends h2d.Scene {
 		}
 	}
 
+	var cursorTile:h2d.Tile;
+	var cursorMoveTile:h2d.Tile;
+
+
 	private function loadDesktop() {
-		var cursorTile:h2d.Tile = hxd.Res.ui.under_cursor.toTile();
+		cursorTile = hxd.Res.ui.under_cursor.toTile();
+		cursorMoveTile = hxd.Res.ui.move_cursor.toTile();
 		this.cursorBmp = new h2d.Bitmap(cursorTile, this.overlay);
 		this.drawGraphic = new h2d.Graphics(this.overlay);
 
@@ -91,34 +98,50 @@ class Desktop extends h2d.Scene {
 	var wX:Int = 1;
 	var wY:Int = 1;
 
+	var selectedBounds : Rectangle;
+
 	function mouseUIHandler(e:MouseEventType):Void {
 		switch (e) {
 			case Push:
 				this.isPushing = true;
 				this.cursorBmp.visible = false;
-				this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100) * 100;
-				this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100) * 100;
+				this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
+				this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
 				this.wX = 0;
 				this.wY = 0;
-				this.drawRect(Math.floor(this.startPosX / 100), Math.floor(this.startPosY / 100), this.wX, this.wY);
+				this.drawRect(Math.floor(this.startPosX), Math.floor(this.startPosY), this.wX, this.wY);
 			case Move:
 				this.cursorBmp.x = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100) * 100;
 				this.cursorBmp.y = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100) * 100;
 				if (isPushing) {
 					var px = this.cursorBmp.x;
 					var py = this.cursorBmp.y;
-					var nwX:Int = Math.floor((px - this.startPosX) / 100);
-					var nwY:Int = Math.floor((py - this.startPosY) / 100);
+					var nwX:Int = Math.floor((px - this.startPosX*100) / 100);
+					var nwY:Int = Math.floor((py - this.startPosY*100) / 100);
 					if (nwX != this.wX || nwY != this.wY) {
 						this.wX = nwX;
 						this.wY = nwY;
-						this.drawRect(Math.floor(this.startPosX / 100), Math.floor(this.startPosY / 100), this.wX, this.wY);
+						this.drawRect(this.startPosX, this.startPosY, this.wX, this.wY);
 					}
 				}
 			case Release:
 				isPushing = false;
 				this.cursorBmp.visible = true;
 		}
+	}
+
+	inline function pointCheck(px:Int, py:Int, r:Rectangle):Bool {
+		if(px >= r.x && px <= (r.x + r.w - 1) && py >= r.y && py <= (r.y+r.h-1)) {
+			return true;
+		}
+		return false;
+	}
+
+	function isCursorInSelection():Bool {
+		if(this.cursorBmp == null || selectedBounds == null)
+			return false;
+
+		return pointCheck(Std.int(this.cursorBmp.x/100), Std.int(this.cursorBmp.y/100), selectedBounds);
 	}
 
 	var playerMovementFlag:Int = 0;
@@ -172,11 +195,11 @@ class Desktop extends h2d.Scene {
 	function drawRect(fromX:Int, fromY:Int, wc:Int, hc:Int) {
 		this.drawGraphic.clear();
 		this.drawGraphic.beginFill(0xff8000, 0.5);
-		var x, y, w, h:Int = 0;
+		var x:Int = 0, y:Int = 0, w:Int = 0, h:Int = 0;
 
 		if (wc <= 0) {
 			x = (fromX + wc) * 100;
-			w = (Math.abs(wc) + 1) * 100;
+			w = Std.int((Math.abs(wc) + 1) * 100);
 		} else {
 			x = fromX * 100;
 			w = (wc + 1) * 100;
@@ -190,10 +213,28 @@ class Desktop extends h2d.Scene {
 		}
 		this.drawGraphic.drawRect(x, y, w, h);
 		this.drawGraphic.endFill();
+		selectedBounds = {
+			x: Std.int(x*0.01),
+			y: Std.int(y*0.01),
+			w: Std.int(w*0.01),
+			h: Std.int(h*0.01)
+		};
 		this.soundChannel = this.selectBloopSound.play(false, (Math.abs(wc * hc) + 2) / 3);
 	}
 
 	override function sync(ctx:RenderContext) {
+		if(isCursorInSelection()) {
+			if(this.cursorBmp != null) {
+				if(this.cursorBmp.tile != cursorMoveTile)
+					this.cursorBmp.tile = cursorMoveTile;
+			}
+		} else {
+			if(this.cursorBmp != null) {
+				if(this.cursorBmp.tile != cursorTile)
+					this.cursorBmp.tile = cursorTile;
+			}
+		}
+
 		super.sync(ctx);
 		movePlayer();
 	}
