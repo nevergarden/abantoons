@@ -106,7 +106,11 @@ class Desktop extends h2d.Scene {
 				this.drawGraphic.x = 0;
 				this.drawGraphic.y = 0;
 				this.drawGraphic.clear();
+				this.platform.pasteSelectedPlatforms(lastDiffX, lastDiffY);
+				this.platform.render();
 				this.platform.resetSelected();
+				this.lastDiffX = 0;
+				this.lastDiffY = 0;
 				this.cursorBmp.tile = this.cursorTile;
 				this.selectedBounds = null;
 			case Selecting:
@@ -135,6 +139,9 @@ class Desktop extends h2d.Scene {
 						this.wX = 0;
 						this.wY = 0;
 					} else {
+						if(!isCursorInSelection())
+							selectionState = Deselect;
+
 						selectionState = Selecting;
 						this.cursorBmp.visible = false;
 						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
@@ -181,8 +188,6 @@ class Desktop extends h2d.Scene {
 						this.selectionState = Selected;
 						this.cursorBmp.visible = true;
 					} else {
-						this.platform.pasteSelectedPlatforms(lastDiffX, lastDiffY);
-						this.platform.render();
 						this.selectionState = Deselect;
 						this.cursorBmp.visible = true;
 					}
