@@ -1,9 +1,9 @@
 package abantoons.core;
 
 enum MouseEventType {
-	Push;
+	Push(button:Int);
 	Move;
-	Release;
+	Release(button:Int);
 }
 
 class Mouse {
@@ -31,11 +31,11 @@ class Mouse {
 		elisteners.remove(f);
 	}
 
-	public static function push() {
-		dispatch(Push);
+	public static function push(button:Int) {
+		dispatch(Push(button));
 	}
 
-	public static function release() {
-		dispatch(Release);
+	public static function release(button:Int) {
+		dispatch(Release(button));
 	}
 }

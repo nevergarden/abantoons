@@ -1,7 +1,6 @@
 package abantoons.scene;
 
 import abantoons.type.Rectangle;
-import h2d.col.Bounds;
 import h2d.Layers;
 import h2d.RenderContext;
 import hxd.Key;
@@ -10,7 +9,14 @@ import abantoons.core.Keyboard;
 import abantoons.core.Mouse;
 import abantoons.view.CharacterView;
 import abantoons.view.PlatformView;
-import abantoons.view.block.Dirt;
+
+enum SelectionState {
+	Deselect;
+	Selecting;
+	Selected;
+	Moving;
+	EndMove;
+}
 
 class Desktop extends h2d.Scene {
 	var time:Float = 0;
@@ -82,28 +88,40 @@ class Desktop extends h2d.Scene {
 		platform.render();
 	}
 
-	var isPushing:Bool = false;
 	var startPosX:Int = 0;
 	var startPosY:Int = 0;
 	var wX:Int = 1;
 	var wY:Int = 1;
 
 	var selectedBounds : Rectangle;
+	var selectionState : SelectionState = Deselect;
 
 	function mouseUIHandler(e:MouseEventType):Void {
 		switch (e) {
-			case Push:
-				this.isPushing = true;
-				this.cursorBmp.visible = false;
-				this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
-				this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
-				this.wX = 0;
-				this.wY = 0;
-				this.drawRect(Math.floor(this.startPosX), Math.floor(this.startPosY), this.wX, this.wY);
+			case Push(button):
+				if(button == 0) {
+					if(selectionState == Selected && isCursorInSelection()) {
+						
+					} else {
+						selectionState = Selecting;
+						this.cursorBmp.visible = false;
+						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
+						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
+						this.wX = 0;
+						this.wY = 0;
+						this.drawRect(Math.floor(this.startPosX), Math.floor(this.startPosY), this.wX, this.wY);
+					}
+				}
+				if(button == 1) {
+					selectionState = Deselect;
+					this.cursorBmp.visible = true;
+					this.selectedBounds = null;
+					this.drawGraphic.clear();
+				}
 			case Move:
 				this.cursorBmp.x = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100) * 100;
 				this.cursorBmp.y = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100) * 100;
-				if (isPushing) {
+				if (selectionState == Selecting) {
 					var px = this.cursorBmp.x;
 					var py = this.cursorBmp.y;
 					var nwX:Int = Math.floor((px - this.startPosX*100) / 100);
@@ -113,11 +131,17 @@ class Desktop extends h2d.Scene {
 						this.wY = nwY;
 						this.drawRect(this.startPosX, this.startPosY, this.wX, this.wY);
 					}
+				} else if(selectionState == Selected) {
+					
 				}
-			case Release:
-				platform.selectPlatforms(selectedBounds);
-				isPushing = false;
-				this.cursorBmp.visible = true;
+			case Release(button):
+				if(button == 0) {
+					if(selectionState == Selecting) {
+						platform.selectPlatforms(selectedBounds);
+						this.selectionState = Selected;
+						this.cursorBmp.visible = true;
+					}
+				}
 		}
 	}
 
