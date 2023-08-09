@@ -43,7 +43,7 @@ class PlatformView extends h2d.Object {
 		];
 	}
 
-	public function addTileToGroup(x:Int, y:Int, type:PlatformType, ?tileGroup:Map<Int, Map<Int, Tile>>=null) {
+	public function addTileTypeToGroup(x:Int, y:Int, type:PlatformType, ?tileGroup:Map<Int, Map<Int, Tile>>=null) {
 		try {
 			if(tileGroup == null)
 				tileGroup = this.platformsMap;
@@ -53,6 +53,21 @@ class PlatformView extends h2d.Object {
 				tileGroup.set(x, ymap);
 			}
 			ymap.set(y, tilesMap.get(type));
+		} catch(e:haxe.Exception) {
+			trace("adding tile should've never failed.");
+		}
+	}
+
+	public function addTileToGroup(x:Int, y:Int, tile:Tile, ?tileGroup:Map<Int, Map<Int, Tile>>=null) {
+		try {
+			if(tileGroup == null)
+				tileGroup = this.platformsMap;
+			var ymap = tileGroup.get(x);
+			if(ymap == null) {
+				ymap = new Map<Int, Tile>();
+				tileGroup.set(x, ymap);
+			}
+			ymap.set(y, tile);
 		} catch(e:haxe.Exception) {
 			trace("adding tile should've never failed.");
 		}
@@ -86,7 +101,6 @@ class PlatformView extends h2d.Object {
 				}
 			}
 		}
-		// this.platforms.invalidate();
 	}
 
 	public function selectPlatforms(rect:Rectangle) {
@@ -102,5 +116,25 @@ class PlatformView extends h2d.Object {
 			selectedPlatformsMap.set(x, ymap);
 		}
 		render();
+	}
+
+	public function pasteSelectedPlatforms(diffX:Int, diffY:Int) {
+		for(x=>ymap in this.selectedPlatformsMap) {
+			for(y=>tile in ymap) {
+				addTileToGroup(x+diffX, y+diffY, tile, this.platformsMap);
+			}
+		}
+		this.selectedPlatformsMap.clear();
+		render();
+	}
+
+	public function moveSelected(diffX:Int, diffY:Int) {
+		this.selectedPlatforms.x += 100*diffX;
+		this.selectedPlatforms.y += 100*diffY;
+	}
+
+	public function resetSelected() {
+		this.selectedPlatforms.x = 0;
+		this.selectedPlatforms.y = 0;
 	}
 }

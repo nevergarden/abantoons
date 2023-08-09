@@ -1,7 +1,6 @@
 package abantoons.scene;
 
 import abantoons.type.Rectangle;
-import h2d.col.Bounds;
 import h2d.Layers;
 import h2d.RenderContext;
 import hxd.Key;
@@ -10,7 +9,14 @@ import abantoons.core.Keyboard;
 import abantoons.core.Mouse;
 import abantoons.view.CharacterView;
 import abantoons.view.PlatformView;
-import abantoons.view.block.Dirt;
+
+enum SelectionState {
+	Deselect;
+	Selecting;
+	Selected;
+	Moving;
+	EndMove;
+}
 
 class Desktop extends h2d.Scene {
 	var time:Float = 0;
@@ -70,40 +76,84 @@ class Desktop extends h2d.Scene {
 		camera.anchorY = 0.5;
 
 		platform = new PlatformView(this.background);
-		platform.addTileToGroup(0,0, Dirt1);
-		platform.addTileToGroup(1,0, Dirt1);
-		platform.addTileToGroup(2,0, Dirt1);
-		platform.addTileToGroup(3,0, Dirt1);
-		platform.addTileToGroup(0,1, Dirt2);
-		platform.addTileToGroup(1,1, Dirt2);
-		platform.addTileToGroup(2,1, Dirt2);
-		platform.addTileToGroup(3,1, Dirt2);
+		platform.addTileTypeToGroup(0,0, Dirt1);
+		platform.addTileTypeToGroup(1,0, Dirt1);
+		platform.addTileTypeToGroup(2,0, Dirt1);
+		platform.addTileTypeToGroup(3,0, Dirt1);
+		platform.addTileTypeToGroup(0,1, Dirt2);
+		platform.addTileTypeToGroup(1,1, Dirt2);
+		platform.addTileTypeToGroup(2,1, Dirt2);
+		platform.addTileTypeToGroup(3,1, Dirt2);
 		platform.removeTileFromGroup(3,1);
 		platform.render();
 	}
 
-	var isPushing:Bool = false;
 	var startPosX:Int = 0;
 	var startPosY:Int = 0;
 	var wX:Int = 1;
 	var wY:Int = 1;
 
 	var selectedBounds : Rectangle;
+	var selectionState(default,set) : SelectionState = Deselect;
+
+	function set_selectionState(value:SelectionState) : SelectionState {
+		// trace(selectionState);
+		if(value == selectionState && value != Selected)
+			return selectionState;
+
+		switch(value) {
+			case Deselect:
+				this.drawGraphic.x = 0;
+				this.drawGraphic.y = 0;
+				this.drawGraphic.clear();
+				this.platform.resetSelected();
+				this.cursorBmp.tile = this.cursorTile;
+				this.selectedBounds = null;
+			case Selecting:
+				
+			case Selected:
+				if(isCursorInSelection()) {
+					this.cursorBmp.tile = this.cursorMoveTile;
+				}
+				else {
+					this.cursorBmp.tile = this.cursorTile;
+				}
+			case Moving:
+			case EndMove:
+		}
+		return selectionState = value;
+	}
 
 	function mouseUIHandler(e:MouseEventType):Void {
 		switch (e) {
-			case Push:
-				this.isPushing = true;
-				this.cursorBmp.visible = false;
-				this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
-				this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
-				this.wX = 0;
-				this.wY = 0;
-				this.drawRect(Math.floor(this.startPosX), Math.floor(this.startPosY), this.wX, this.wY);
+			case Push(button):
+				if(button == 0) {
+					if(selectionState == Selected && isCursorInSelection()) {
+						this.selectionState = Moving;
+						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
+						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
+						this.wX = 0;
+						this.wY = 0;
+					} else {
+						selectionState = Selecting;
+						this.cursorBmp.visible = false;
+						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
+						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
+						this.wX = 0;
+						this.wY = 0;
+						this.drawRect(Math.floor(this.startPosX), Math.floor(this.startPosY), this.wX, this.wY);
+					}
+				}
+				if(button == 1) {
+					selectionState = Deselect;
+					this.cursorBmp.visible = true;
+					this.selectedBounds = null;
+					this.drawGraphic.clear();
+				}
 			case Move:
 				this.cursorBmp.x = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100) * 100;
 				this.cursorBmp.y = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100) * 100;
-				if (isPushing) {
+				if (selectionState == Selecting) {
 					var px = this.cursorBmp.x;
 					var py = this.cursorBmp.y;
 					var nwX:Int = Math.floor((px - this.startPosX*100) / 100);
@@ -113,11 +163,30 @@ class Desktop extends h2d.Scene {
 						this.wY = nwY;
 						this.drawRect(this.startPosX, this.startPosY, this.wX, this.wY);
 					}
+				} else if(selectionState == Moving) {
+					var px = this.cursorBmp.x;
+					var py = this.cursorBmp.y;
+					var nwX:Int = Math.floor((px - this.startPosX*100) / 100);
+					var nwY:Int = Math.floor((py - this.startPosY*100) / 100);
+					if (nwX != this.wX || nwY != this.wY) {
+						moveDiff(nwX - this.wX, nwY - this.wY);
+						this.wX = nwX;
+						this.wY = nwY;
+					}
 				}
-			case Release:
-				platform.selectPlatforms(selectedBounds);
-				isPushing = false;
-				this.cursorBmp.visible = true;
+			case Release(button):
+				if(button == 0) {
+					if(selectionState == Selecting) {
+						platform.selectPlatforms(selectedBounds);
+						this.selectionState = Selected;
+						this.cursorBmp.visible = true;
+					} else {
+						this.platform.pasteSelectedPlatforms(lastDiffX, lastDiffY);
+						this.platform.render();
+						this.selectionState = Deselect;
+						this.cursorBmp.visible = true;
+					}
+				}
 		}
 	}
 
@@ -185,7 +254,7 @@ class Desktop extends h2d.Scene {
 
 	function drawRect(fromX:Int, fromY:Int, wc:Int, hc:Int) {
 		this.drawGraphic.clear();
-		this.drawGraphic.beginFill(0xff8000, 0.5);
+		this.drawGraphic.beginFill(0x00c3ff, 0.1);
 		var x:Int = 0, y:Int = 0, w:Int = 0, h:Int = 0;
 
 		if (wc <= 0) {
@@ -213,19 +282,26 @@ class Desktop extends h2d.Scene {
 		this.soundChannel = this.selectBloopSound.play(false, (Math.abs(wc * hc) + 2) / 3);
 	}
 
-	override function sync(ctx:RenderContext) {
-		if(isCursorInSelection()) {
-			if(this.cursorBmp != null) {
-				if(this.cursorBmp.tile != cursorMoveTile)
-					this.cursorBmp.tile = cursorMoveTile;
-			}
-		} else {
-			if(this.cursorBmp != null) {
-				if(this.cursorBmp.tile != cursorTile)
-					this.cursorBmp.tile = cursorTile;
-			}
-		}
+	var lastDiffX = 0;
+	var lastDiffY = 0;
+	function moveDiff(x:Int, y:Int) : Void {
+		this.drawGraphic.x += (x*100);
+		this.drawGraphic.y += (y*100);
 
+		this.selectedBounds.x += x;
+		this.selectedBounds.y += y;
+
+		this.platform.moveSelected(x, y);
+
+		lastDiffX = x;
+		lastDiffY = y;
+	}
+
+	override function sync(ctx:RenderContext) {
+		if(cursorBmp != null) {
+			if(selectionState == Selected)
+				selectionState = Selected;
+		}
 		super.sync(ctx);
 		movePlayer();
 	}
