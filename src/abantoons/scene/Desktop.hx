@@ -76,14 +76,14 @@ class Desktop extends h2d.Scene {
 		camera.anchorY = 0.5;
 
 		platform = new PlatformView(this.background);
-		platform.addTileToGroup(0,0, Dirt1);
-		platform.addTileToGroup(1,0, Dirt1);
-		platform.addTileToGroup(2,0, Dirt1);
-		platform.addTileToGroup(3,0, Dirt1);
-		platform.addTileToGroup(0,1, Dirt2);
-		platform.addTileToGroup(1,1, Dirt2);
-		platform.addTileToGroup(2,1, Dirt2);
-		platform.addTileToGroup(3,1, Dirt2);
+		platform.addTileTypeToGroup(0,0, Dirt1);
+		platform.addTileTypeToGroup(1,0, Dirt1);
+		platform.addTileTypeToGroup(2,0, Dirt1);
+		platform.addTileTypeToGroup(3,0, Dirt1);
+		platform.addTileTypeToGroup(0,1, Dirt2);
+		platform.addTileTypeToGroup(1,1, Dirt2);
+		platform.addTileTypeToGroup(2,1, Dirt2);
+		platform.addTileTypeToGroup(3,1, Dirt2);
 		platform.removeTileFromGroup(3,1);
 		platform.render();
 	}
@@ -97,12 +97,18 @@ class Desktop extends h2d.Scene {
 	var selectionState(default,set) : SelectionState = Deselect;
 
 	function set_selectionState(value:SelectionState) : SelectionState {
+		// trace(selectionState);
 		if(value == selectionState && value != Selected)
 			return selectionState;
 
 		switch(value) {
 			case Deselect:
+				this.drawGraphic.x = 0;
+				this.drawGraphic.y = 0;
+				this.drawGraphic.clear();
+				this.platform.resetSelected();
 				this.cursorBmp.tile = this.cursorTile;
+				this.selectedBounds = null;
 			case Selecting:
 				
 			case Selected:
@@ -123,7 +129,11 @@ class Desktop extends h2d.Scene {
 			case Push(button):
 				if(button == 0) {
 					if(selectionState == Selected && isCursorInSelection()) {
-						
+						this.selectionState = Moving;
+						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
+						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
+						this.wX = 0;
+						this.wY = 0;
 					} else {
 						selectionState = Selecting;
 						this.cursorBmp.visible = false;
@@ -153,14 +163,27 @@ class Desktop extends h2d.Scene {
 						this.wY = nwY;
 						this.drawRect(this.startPosX, this.startPosY, this.wX, this.wY);
 					}
-				} else if(selectionState == Selected) {
-					
+				} else if(selectionState == Moving) {
+					var px = this.cursorBmp.x;
+					var py = this.cursorBmp.y;
+					var nwX:Int = Math.floor((px - this.startPosX*100) / 100);
+					var nwY:Int = Math.floor((py - this.startPosY*100) / 100);
+					if (nwX != this.wX || nwY != this.wY) {
+						moveDiff(nwX - this.wX, nwY - this.wY);
+						this.wX = nwX;
+						this.wY = nwY;
+					}
 				}
 			case Release(button):
 				if(button == 0) {
 					if(selectionState == Selecting) {
 						platform.selectPlatforms(selectedBounds);
 						this.selectionState = Selected;
+						this.cursorBmp.visible = true;
+					} else {
+						this.platform.pasteSelectedPlatforms(lastDiffX, lastDiffY);
+						this.platform.render();
+						this.selectionState = Deselect;
 						this.cursorBmp.visible = true;
 					}
 				}
@@ -231,7 +254,7 @@ class Desktop extends h2d.Scene {
 
 	function drawRect(fromX:Int, fromY:Int, wc:Int, hc:Int) {
 		this.drawGraphic.clear();
-		this.drawGraphic.beginFill(0xff8000, 0.5);
+		this.drawGraphic.beginFill(0x00c3ff, 0.1);
 		var x:Int = 0, y:Int = 0, w:Int = 0, h:Int = 0;
 
 		if (wc <= 0) {
@@ -257,6 +280,21 @@ class Desktop extends h2d.Scene {
 			h: Std.int(h*0.01)
 		};
 		this.soundChannel = this.selectBloopSound.play(false, (Math.abs(wc * hc) + 2) / 3);
+	}
+
+	var lastDiffX = 0;
+	var lastDiffY = 0;
+	function moveDiff(x:Int, y:Int) : Void {
+		this.drawGraphic.x += (x*100);
+		this.drawGraphic.y += (y*100);
+
+		this.selectedBounds.x += x;
+		this.selectedBounds.y += y;
+
+		this.platform.moveSelected(x, y);
+
+		lastDiffX = x;
+		lastDiffY = y;
 	}
 
 	override function sync(ctx:RenderContext) {
