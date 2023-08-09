@@ -94,7 +94,29 @@ class Desktop extends h2d.Scene {
 	var wY:Int = 1;
 
 	var selectedBounds : Rectangle;
-	var selectionState : SelectionState = Deselect;
+	var selectionState(default,set) : SelectionState = Deselect;
+
+	function set_selectionState(value:SelectionState) : SelectionState {
+		if(value == selectionState && value != Selected)
+			return selectionState;
+
+		switch(value) {
+			case Deselect:
+				this.cursorBmp.tile = this.cursorTile;
+			case Selecting:
+				
+			case Selected:
+				if(isCursorInSelection()) {
+					this.cursorBmp.tile = this.cursorMoveTile;
+				}
+				else {
+					this.cursorBmp.tile = this.cursorTile;
+				}
+			case Moving:
+			case EndMove:
+		}
+		return selectionState = value;
+	}
 
 	function mouseUIHandler(e:MouseEventType):Void {
 		switch (e) {
@@ -238,18 +260,10 @@ class Desktop extends h2d.Scene {
 	}
 
 	override function sync(ctx:RenderContext) {
-		if(isCursorInSelection()) {
-			if(this.cursorBmp != null) {
-				if(this.cursorBmp.tile != cursorMoveTile)
-					this.cursorBmp.tile = cursorMoveTile;
-			}
-		} else {
-			if(this.cursorBmp != null) {
-				if(this.cursorBmp.tile != cursorTile)
-					this.cursorBmp.tile = cursorTile;
-			}
+		if(cursorBmp != null) {
+			if(selectionState == Selected)
+				selectionState = Selected;
 		}
-
 		super.sync(ctx);
 		movePlayer();
 	}
