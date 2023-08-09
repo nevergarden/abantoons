@@ -298,8 +298,8 @@ class Desktop extends h2d.Scene {
 
 		this.platform.moveSelected(x, y);
 
-		lastDiffX = x;
-		lastDiffY = y;
+		lastDiffX += x;
+		lastDiffY += y;
 	}
 
 	override function sync(ctx:RenderContext) {
