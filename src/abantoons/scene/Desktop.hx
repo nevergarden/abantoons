@@ -147,8 +147,8 @@ class Desktop extends h2d.Scene {
 				if(button == 0) {
 					if(selectionState == Selected && isCursorInSelection()) {
 						this.selectionState = Moving;
-						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
-						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
+						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / PlatformView.TILE_SIZE);
+						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / PlatformView.TILE_SIZE);
 						this.wX = 0;
 						this.wY = 0;
 					} else {
@@ -157,8 +157,8 @@ class Desktop extends h2d.Scene {
 
 						selectionState = Selecting;
 						this.cursorBmp.visible = false;
-						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100);
-						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100);
+						this.startPosX = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / PlatformView.TILE_SIZE);
+						this.startPosY = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / PlatformView.TILE_SIZE);
 						this.wX = 0;
 						this.wY = 0;
 						this.drawRect(Math.floor(this.startPosX), Math.floor(this.startPosY), this.wX, this.wY);
@@ -171,13 +171,13 @@ class Desktop extends h2d.Scene {
 					this.drawGraphic.clear();
 				}
 			case Move:
-				this.cursorBmp.x = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / 100) * 100;
-				this.cursorBmp.y = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / 100) * 100;
+				this.cursorBmp.x = Math.floor(this.screenXToViewport(abantoons.core.Mouse.posX) / PlatformView.TILE_SIZE) * PlatformView.TILE_SIZE;
+				this.cursorBmp.y = Math.floor(this.screenYToViewport(abantoons.core.Mouse.posY) / PlatformView.TILE_SIZE) * PlatformView.TILE_SIZE;
 				if (selectionState == Selecting) {
 					var px = this.cursorBmp.x;
 					var py = this.cursorBmp.y;
-					var nwX:Int = Math.floor((px - this.startPosX*100) / 100);
-					var nwY:Int = Math.floor((py - this.startPosY*100) / 100);
+					var nwX:Int = Math.floor((px - this.startPosX*PlatformView.TILE_SIZE) / PlatformView.TILE_SIZE);
+					var nwY:Int = Math.floor((py - this.startPosY*PlatformView.TILE_SIZE) / PlatformView.TILE_SIZE);
 					if (nwX != this.wX || nwY != this.wY) {
 						this.wX = nwX;
 						this.wY = nwY;
@@ -186,8 +186,8 @@ class Desktop extends h2d.Scene {
 				} else if(selectionState == Moving) {
 					var px = this.cursorBmp.x;
 					var py = this.cursorBmp.y;
-					var nwX:Int = Math.floor((px - this.startPosX*100) / 100);
-					var nwY:Int = Math.floor((py - this.startPosY*100) / 100);
+					var nwX:Int = Math.floor((px - this.startPosX*PlatformView.TILE_SIZE) / PlatformView.TILE_SIZE);
+					var nwY:Int = Math.floor((py - this.startPosY*PlatformView.TILE_SIZE) / PlatformView.TILE_SIZE);
 					if (nwX != this.wX || nwY != this.wY) {
 						moveDiff(nwX - this.wX, nwY - this.wY);
 						this.wX = nwX;
@@ -219,7 +219,7 @@ class Desktop extends h2d.Scene {
 		if(this.cursorBmp == null || selectedBounds == null)
 			return false;
 
-		return pointCheck(Std.int(this.cursorBmp.x/100), Std.int(this.cursorBmp.y/100), selectedBounds);
+		return pointCheck(Std.int(this.cursorBmp.x/PlatformView.TILE_SIZE), Std.int(this.cursorBmp.y/PlatformView.TILE_SIZE), selectedBounds);
 	}
 
 	var playerMovementFlag:Int = 0;
@@ -278,26 +278,26 @@ class Desktop extends h2d.Scene {
 		var x:Int = 0, y:Int = 0, w:Int = 0, h:Int = 0;
 
 		if (wc <= 0) {
-			x = (fromX + wc) * 100;
-			w = Std.int((Math.abs(wc) + 1) * 100);
+			x = (fromX + wc) * PlatformView.TILE_SIZE;
+			w = Std.int((Math.abs(wc) + 1) * PlatformView.TILE_SIZE);
 		} else {
-			x = fromX * 100;
-			w = (wc + 1) * 100;
+			x = fromX * PlatformView.TILE_SIZE;
+			w = (wc + 1) * PlatformView.TILE_SIZE;
 		}
 		if (hc <= 0) {
-			y = (fromY + hc) * 100;
-			h = Std.int((Math.abs(hc) + 1) * 100);
+			y = (fromY + hc) * PlatformView.TILE_SIZE;
+			h = Std.int((Math.abs(hc) + 1) * PlatformView.TILE_SIZE);
 		} else {
-			y = fromY * 100;
-			h = (hc + 1) * 100;
+			y = fromY * PlatformView.TILE_SIZE;
+			h = (hc + 1) * PlatformView.TILE_SIZE;
 		}
 		this.drawGraphic.drawRect(x, y, w, h);
 		this.drawGraphic.endFill();
 		selectedBounds = {
-			x: Std.int(x*0.01),
-			y: Std.int(y*0.01),
-			w: Std.int(w*0.01),
-			h: Std.int(h*0.01)
+			x: Std.int(x/PlatformView.TILE_SIZE),
+			y: Std.int(y/PlatformView.TILE_SIZE),
+			w: Std.int(w/PlatformView.TILE_SIZE),
+			h: Std.int(h/PlatformView.TILE_SIZE)
 		};
 		this.soundChannel = this.selectBloopSound.play(false, (Math.abs(wc * hc) + 2) / 3);
 	}
@@ -305,8 +305,8 @@ class Desktop extends h2d.Scene {
 	var lastDiffX = 0;
 	var lastDiffY = 0;
 	function moveDiff(x:Int, y:Int) : Void {
-		this.drawGraphic.x += (x*100);
-		this.drawGraphic.y += (y*100);
+		this.drawGraphic.x += (x*PlatformView.TILE_SIZE);
+		this.drawGraphic.y += (y*PlatformView.TILE_SIZE);
 
 		this.selectedBounds.x += x;
 		this.selectedBounds.y += y;

@@ -17,6 +17,8 @@ typedef PlatformCoord = {
 }
 
 class PlatformView extends h2d.Object {
+	public static final TILE_SIZE : Int = 100;
+
 	private static var tilesMap : Map<PlatformType, Tile>;
 	private final platforms : TileGroup;
 	private var selectedPlatforms : TileGroup;
@@ -131,8 +133,8 @@ class PlatformView extends h2d.Object {
 	}
 
 	public function moveSelected(diffX:Int, diffY:Int) {
-		this.selectedPlatforms.x += 100*diffX;
-		this.selectedPlatforms.y += 100*diffY;
+		this.selectedPlatforms.x += TILE_SIZE*diffX;
+		this.selectedPlatforms.y += TILE_SIZE*diffY;
 	}
 
 	public function resetSelected() {
