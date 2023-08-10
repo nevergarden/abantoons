@@ -1,5 +1,6 @@
 package abantoons.scene;
 
+import h2d.Bitmap;
 import abantoons.type.Rectangle;
 import h2d.Layers;
 import h2d.RenderContext;
@@ -43,6 +44,7 @@ class Desktop extends h2d.Scene {
 	}
 
 	private function start() {
+		this.camera.clipViewport = true;
 		var logo = new BootLogo(3, this);
 		logo.x = Abantoons.WIDTH / 2;
 		logo.y = Abantoons.HEIGHT / 2 - 50;
@@ -58,8 +60,12 @@ class Desktop extends h2d.Scene {
 
 	var platform : PlatformView;
 
+	var bg : h2d.Bitmap;
 
 	private function loadDesktop() {
+		var bgTile = hxd.Res.platform.background.toTile();
+		bgTile = bgTile.center();
+		bg = new Bitmap(bgTile, this.background);
 		cursorTile = hxd.Res.ui.under_cursor.toTile();
 		cursorMoveTile = hxd.Res.ui.move_cursor.toTile();
 		this.cursorBmp = new h2d.Bitmap(cursorTile, this.overlay);
@@ -88,6 +94,10 @@ class Desktop extends h2d.Scene {
 		platform.addTileTypeToGroup(1,2, Dirt3);
 		platform.addTileTypeToGroup(2,2, Dirt3);
 		platform.addTileTypeToGroup(3,2, Dirt3);
+		platform.addTileTypeToGroup(4,0, Stone1);
+		platform.addTileTypeToGroup(4,1, Stone1);
+		platform.addTileTypeToGroup(4,2, Stone1);
+
 		platform.render();
 	}
 
@@ -312,7 +322,12 @@ class Desktop extends h2d.Scene {
 			if(selectionState == Selected)
 				selectionState = Selected;
 		}
+		if(bg != null) {
+			bg.x = character.x;
+			bg.y = character.y;
+		}
 		super.sync(ctx);
+		
 		movePlayer();
 	}
 

@@ -8,6 +8,7 @@ enum PlatformType {
 	Dirt1;
 	Dirt2;
 	Dirt3;
+	Stone1;
 }
 
 typedef PlatformCoord = {
@@ -40,6 +41,7 @@ class PlatformView extends h2d.Object {
 			Dirt1 => hxd.Res.platform.dirt_1.toTile(),
 			Dirt2 => hxd.Res.platform.dirt_2.toTile(),
 			Dirt3 => hxd.Res.platform.dirt_3.toTile(),
+			Stone1 => hxd.Res.platform.stone_1.toTile(),
 		];
 	}
 
