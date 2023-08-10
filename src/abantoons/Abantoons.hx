@@ -4,11 +4,10 @@ import abantoons.scene.Desktop;
 
 class Abantoons extends hxd.App {
 	public static var NULL_TILE : h2d.Tile;
-	public static var WIDTH_RATIO : Float = 1;
-	public static var HEIGHT_RATIO : Float = 1;
+	public static var WIDTH : Int = 1280;
+	public static var HEIGHT : Int = 720;
 
 	override function init() {
-		this.calculate_ratio();
 		this.setScene2D(new Desktop(), true);
 
 		hxd.Window.getInstance().addEventTarget(handleInput);
@@ -16,12 +15,6 @@ class Abantoons extends hxd.App {
 
 	override function onResize() {
 		super.onResize();
-		this.calculate_ratio();
-	}
-
-	function calculate_ratio():Void {
-		WIDTH_RATIO = engine.width / 800;
-		HEIGHT_RATIO = engine.height / 600;
 	}
 
 	function init_global():Void {
@@ -40,6 +33,8 @@ class Abantoons extends hxd.App {
 				abantoons.core.Keyboard.down(e.keyCode);
 			case EKeyUp:
 				abantoons.core.Keyboard.up(e.keyCode);
+			case EFocusLost:
+				abantoons.core.Keyboard.upAll();
 			default:
 		}
 	}

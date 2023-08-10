@@ -1,5 +1,6 @@
 package abantoons.scene;
 
+import h2d.Bitmap;
 import abantoons.type.Rectangle;
 import h2d.Layers;
 import h2d.RenderContext;
@@ -43,9 +44,10 @@ class Desktop extends h2d.Scene {
 	}
 
 	private function start() {
+		this.camera.clipViewport = true;
 		var logo = new BootLogo(3, this);
-		logo.x = 800 / 2;
-		logo.y = 600 / 2 - 50;
+		logo.x = Abantoons.WIDTH / 2;
+		logo.y = Abantoons.HEIGHT / 2 - 50;
 		selectBloopSound = hxd.Res.sfx.bloop_noise;
 		logo.onDone = function() {
 			this.removeChild(logo);
@@ -58,8 +60,12 @@ class Desktop extends h2d.Scene {
 
 	var platform : PlatformView;
 
+	var bg : h2d.Bitmap;
 
 	private function loadDesktop() {
+		var bgTile = hxd.Res.platform.background.toTile();
+		bgTile = bgTile.center();
+		bg = new Bitmap(bgTile, this.background);
 		cursorTile = hxd.Res.ui.under_cursor.toTile();
 		cursorMoveTile = hxd.Res.ui.move_cursor.toTile();
 		this.cursorBmp = new h2d.Bitmap(cursorTile, this.overlay);
@@ -67,9 +73,9 @@ class Desktop extends h2d.Scene {
 
 		Mouse.addEventListener(mouseUIHandler);
 		Keyboard.addEventListener(playerMovementHandler);
-		character = new CharacterView(hxd.Res.character.yum.yum_png, hxd.Res.character.yum.yum_json, this);
-		character.x = 800 / 2;
-		character.y = 600 / 2;
+		character = new CharacterView(hxd.Res.character.meek.idle_png, hxd.Res.character.meek.idle_json, this);
+		character.x = Abantoons.WIDTH / 2;
+		character.y = Abantoons.HEIGHT / 2;
 
 		camera.follow = character;
 		camera.anchorX = 0.5;
@@ -84,7 +90,14 @@ class Desktop extends h2d.Scene {
 		platform.addTileTypeToGroup(1,1, Dirt2);
 		platform.addTileTypeToGroup(2,1, Dirt2);
 		platform.addTileTypeToGroup(3,1, Dirt2);
-		platform.removeTileFromGroup(3,1);
+		platform.addTileTypeToGroup(0,2, Dirt3);
+		platform.addTileTypeToGroup(1,2, Dirt3);
+		platform.addTileTypeToGroup(2,2, Dirt3);
+		platform.addTileTypeToGroup(3,2, Dirt3);
+		platform.addTileTypeToGroup(4,0, Stone1);
+		platform.addTileTypeToGroup(4,1, Stone1);
+		platform.addTileTypeToGroup(4,2, Stone1);
+
 		platform.render();
 	}
 
@@ -228,6 +241,8 @@ class Desktop extends h2d.Scene {
 					case Key.D: playerMovementFlag &= ~4;
 					case Key.S: playerMovementFlag &= ~8;
 				}
+			case AllUp:
+				playerMovementFlag = 0;
 		}
 	}
 
@@ -307,11 +322,16 @@ class Desktop extends h2d.Scene {
 			if(selectionState == Selected)
 				selectionState = Selected;
 		}
+		if(bg != null) {
+			bg.x = character.x;
+			bg.y = character.y;
+		}
 		super.sync(ctx);
+		
 		movePlayer();
 	}
 
 	function change_resolution() {
-		this.scaleMode = LetterBox(800, 600);
+		this.scaleMode = LetterBox(Abantoons.WIDTH, Abantoons.HEIGHT);
 	}
 }

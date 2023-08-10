@@ -3,6 +3,7 @@ package abantoons.core;
 enum KeyboardEventType {
 	KeyDown(keyCode:Int);
 	KeyUp(keyCode:Int);
+	AllUp();
 }
 
 class Keyboard {
@@ -39,5 +40,12 @@ class Keyboard {
 	public static function up(code:Int) {
 		setKeyUp(code);
 		dispatch(KeyUp(code));
+	}
+
+	public static function upAll() {
+		for(k=>v in keysDown) {
+			keysDown.set(k, false);
+		}
+		dispatch(AllUp);
 	}
 }
