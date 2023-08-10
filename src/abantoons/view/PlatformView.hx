@@ -21,16 +21,16 @@ class PlatformView extends h2d.Object {
 	private final platforms : TileGroup;
 	private var selectedPlatforms : TileGroup;
 
-	private var platformsMap : Map<Int, Map<Int, Tile>>;
-	private var selectedPlatformsMap : Map<Int, Map<Int, Tile>>;
+	private var platformsMap : Map<Int, Map<Int, PlatformType>>;
+	private var selectedPlatformsMap : Map<Int, Map<Int, PlatformType>>;
 
 	public function new(?parent) {
 		initMap();
 		super(parent);
 		this.platforms = new TileGroup(this);
 		this.selectedPlatforms = new TileGroup(this);
-		this.platformsMap = new Map<Int, Map<Int, Tile>>();
-		this.selectedPlatformsMap = new Map<Int, Map<Int, Tile>>();
+		this.platformsMap = new Map<Int, Map<Int, PlatformType>>();
+		this.selectedPlatformsMap = new Map<Int, Map<Int, PlatformType>>();
 	}
 
 	private function initMap() : Void {
@@ -45,28 +45,28 @@ class PlatformView extends h2d.Object {
 		];
 	}
 
-	public function addTileTypeToGroup(x:Int, y:Int, type:PlatformType, ?tileGroup:Map<Int, Map<Int, Tile>>=null) {
+	public function addTileTypeToGroup(x:Int, y:Int, type:PlatformType, ?tileGroup:Map<Int, Map<Int, PlatformType>>=null) {
 		try {
 			if(tileGroup == null)
 				tileGroup = this.platformsMap;
 			var ymap = tileGroup.get(x);
 			if(ymap == null) {
-				ymap = new Map<Int, Tile>();
+				ymap = new Map<Int, PlatformType>();
 				tileGroup.set(x, ymap);
 			}
-			ymap.set(y, tilesMap.get(type));
+			ymap.set(y, type);
 		} catch(e:haxe.Exception) {
 			trace("adding tile should've never failed.");
 		}
 	}
 
-	public function addTileToGroup(x:Int, y:Int, tile:Tile, ?tileGroup:Map<Int, Map<Int, Tile>>=null) {
+	public function addTileToGroup(x:Int, y:Int, tile:PlatformType, ?tileGroup:Map<Int, Map<Int, PlatformType>>=null) {
 		try {
 			if(tileGroup == null)
 				tileGroup = this.platformsMap;
 			var ymap = tileGroup.get(x);
 			if(ymap == null) {
-				ymap = new Map<Int, Tile>();
+				ymap = new Map<Int, PlatformType>();
 				tileGroup.set(x, ymap);
 			}
 			ymap.set(y, tile);
@@ -75,7 +75,7 @@ class PlatformView extends h2d.Object {
 		}
 	}
 
-	public function removeTileFromGroup(x:Int, y:Int, ?tileGroup:Map<Int, Map<Int, Tile>>=null):Tile {
+	public function removeTileFromGroup(x:Int, y:Int, ?tileGroup:Map<Int, Map<Int, PlatformType>>=null):PlatformType {
 		try {
 			if(tileGroup == null)
 				tileGroup = this.platformsMap;
@@ -92,13 +92,13 @@ class PlatformView extends h2d.Object {
 		platformMapToTileGroup(this.selectedPlatforms, this.selectedPlatformsMap);
 	}
 
-	private function platformMapToTileGroup(tileGroup:TileGroup, tileMap:Map<Int, Map<Int, Tile>>) {
+	private function platformMapToTileGroup(tileGroup:TileGroup, tileMap:Map<Int, Map<Int, PlatformType>>) {
 		tileGroup.clear();
 		for(x=>ym in tileMap) {
 			if(ym != null) {
 				for(y=>tile in ym) {
 					if(tile != null) {
-						tileGroup.add(x*100, y*100, tile);
+						tileGroup.add(x*100, y*100, tilesMap.get(tile));
 					}
 				}
 			}
@@ -108,7 +108,7 @@ class PlatformView extends h2d.Object {
 	public function selectPlatforms(rect:Rectangle) {
 		this.selectedPlatformsMap.clear();
 		for(x in rect.x...rect.w+rect.x) {
-			var ymap = new Map<Int, Tile>();
+			var ymap = new Map<Int, PlatformType>();
 			for(y in rect.y...rect.h+rect.y) {
 				var t = removeTileFromGroup(x, y);
 				if(t != null) {
