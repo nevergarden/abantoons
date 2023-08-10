@@ -44,8 +44,8 @@ class Desktop extends h2d.Scene {
 
 	private function start() {
 		var logo = new BootLogo(3, this);
-		logo.x = 800 / 2;
-		logo.y = 600 / 2 - 50;
+		logo.x = Abantoons.WIDTH / 2;
+		logo.y = Abantoons.HEIGHT / 2 - 50;
 		selectBloopSound = hxd.Res.sfx.bloop_noise;
 		logo.onDone = function() {
 			this.removeChild(logo);
@@ -67,9 +67,9 @@ class Desktop extends h2d.Scene {
 
 		Mouse.addEventListener(mouseUIHandler);
 		Keyboard.addEventListener(playerMovementHandler);
-		character = new CharacterView(hxd.Res.character.yum.yum_png, hxd.Res.character.yum.yum_json, this);
-		character.x = 800 / 2;
-		character.y = 600 / 2;
+		character = new CharacterView(hxd.Res.character.meek.idle_png, hxd.Res.character.meek.idle_json, this);
+		character.x = Abantoons.WIDTH / 2;
+		character.y = Abantoons.HEIGHT / 2;
 
 		camera.follow = character;
 		camera.anchorX = 0.5;
@@ -84,7 +84,10 @@ class Desktop extends h2d.Scene {
 		platform.addTileTypeToGroup(1,1, Dirt2);
 		platform.addTileTypeToGroup(2,1, Dirt2);
 		platform.addTileTypeToGroup(3,1, Dirt2);
-		platform.removeTileFromGroup(3,1);
+		platform.addTileTypeToGroup(0,2, Dirt3);
+		platform.addTileTypeToGroup(1,2, Dirt3);
+		platform.addTileTypeToGroup(2,2, Dirt3);
+		platform.addTileTypeToGroup(3,2, Dirt3);
 		platform.render();
 	}
 
@@ -228,6 +231,8 @@ class Desktop extends h2d.Scene {
 					case Key.D: playerMovementFlag &= ~4;
 					case Key.S: playerMovementFlag &= ~8;
 				}
+			case AllUp:
+				playerMovementFlag = 0;
 		}
 	}
 
@@ -312,6 +317,6 @@ class Desktop extends h2d.Scene {
 	}
 
 	function change_resolution() {
-		this.scaleMode = LetterBox(800, 600);
+		this.scaleMode = LetterBox(Abantoons.WIDTH, Abantoons.HEIGHT);
 	}
 }
