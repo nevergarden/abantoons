@@ -1,5 +1,6 @@
 package abantoons.view;
 
+import abantoons.type.Polygon;
 import abantoons.type.Rectangle;
 import h2d.Tile;
 import h2d.TileGroup;
@@ -22,10 +23,13 @@ class PlatformView extends h2d.Object {
 	private static var tilesMap : Map<PlatformType, Tile>;
 	private final platforms : TileGroup;
 	private var selectedPlatforms : TileGroup;
-
+	
+	
 	private var platformsMap : Map<Int, Map<Int, PlatformType>>;
 	private var selectedPlatformsMap : Map<Int, Map<Int, PlatformType>>;
-
+	
+	public var platformPolygon(default, null) : Polygon = [];
+	
 	public function new(?parent) {
 		initMap();
 		super(parent);
@@ -57,6 +61,14 @@ class PlatformView extends h2d.Object {
 				tileGroup.set(x, ymap);
 			}
 			ymap.set(y, type);
+			if(tileGroup == platformsMap) {
+				platformPolygon = platformPolygon.concat([
+					{x: x*TILE_SIZE, y: y*TILE_SIZE},
+					{x: x*TILE_SIZE+TILE_SIZE, y:y*TILE_SIZE},
+					{x: x*TILE_SIZE, y:y*TILE_SIZE+TILE_SIZE},
+					{x: x*TILE_SIZE+TILE_SIZE, y:y*TILE_SIZE+TILE_SIZE}
+				]);
+			}
 		} catch(e:haxe.Exception) {
 			trace("adding tile should've never failed.");
 		}
@@ -95,12 +107,22 @@ class PlatformView extends h2d.Object {
 	}
 
 	private function platformMapToTileGroup(tileGroup:TileGroup, tileMap:Map<Int, Map<Int, PlatformType>>) {
+		if(tileMap == platformsMap)
+			platformPolygon = [];
 		tileGroup.clear();
 		for(x=>ym in tileMap) {
 			if(ym != null) {
 				for(y=>tile in ym) {
 					if(tile != null) {
-						tileGroup.add(x*100, y*100, tilesMap.get(tile));
+						tileGroup.add(x*TILE_SIZE, y*TILE_SIZE, tilesMap.get(tile));
+						if(tileMap == platformsMap) {
+							platformPolygon = platformPolygon.concat([
+								{x: x*TILE_SIZE, y: y*TILE_SIZE},
+								{x: x*TILE_SIZE+TILE_SIZE, y:y*TILE_SIZE},
+								{x: x*TILE_SIZE, y:y*TILE_SIZE+TILE_SIZE},
+								{x: x*TILE_SIZE+TILE_SIZE, y:y*TILE_SIZE+TILE_SIZE}
+							]);
+						}
 					}
 				}
 			}

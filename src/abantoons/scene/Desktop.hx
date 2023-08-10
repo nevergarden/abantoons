@@ -10,6 +10,7 @@ import abantoons.core.Keyboard;
 import abantoons.core.Mouse;
 import abantoons.view.CharacterView;
 import abantoons.view.PlatformView;
+import abantoons.physics.col.RectPolygonCollision;
 
 enum SelectionState {
 	Deselect;
@@ -329,6 +330,12 @@ class Desktop extends h2d.Scene {
 		super.sync(ctx);
 		
 		movePlayer();
+
+		// TODO: this is a working collision.
+		// if(character != null && platform != null)
+		// {
+		// 	trace(RectPolygonCollision.collision(this.character.box, platform.platformPolygon));
+		// }
 	}
 
 	function change_resolution() {
